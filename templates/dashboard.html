@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>控制面板</h2>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_emails }}</div>
+            <div class="stat-label">总邮件数</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ success_emails }}</div>
+            <div class="stat-label">成功发送</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ failed_emails }}</div>
+            <div class="stat-label">发送失败</div>
+        </div>
+    </div>
+    <div class="card">
+        <h3>系统信息</h3>
+        <p>欢迎回来，{{ current_user.username }}！</p>
+        <p>您可以通过以下功能管理您的邮件API服务：</p>
+        <ul style="margin-top: 10px; margin-left: 20px;">
+            <li><a href="{{ url_for('api_keys') }}">管理API Key</a> - 创建和管理您的API密钥</li>
+            <li><a href="{{ url_for('email_stats') }}">查看邮件统计</a> - 查看详细的邮件发送记录</li>
+        </ul>
+    </div>
+{% endblock %}
