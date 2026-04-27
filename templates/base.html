@@ -170,6 +170,9 @@
                     <a href="{{ url_for('dashboard') }}">控制面板</a>
                     <a href="{{ url_for('api_keys') }}">API Key管理</a>
                     <a href="{{ url_for('email_stats') }}">邮件统计</a>
+                    {% if current_user.is_admin %}
+                        <a href="{{ url_for('admin_dashboard') }}">管理员</a>
+                    {% endif %}
                     <a href="{{ url_for('logout') }}">登出</a>
                 {% else %}
                     <a href="{{ url_for('login') }}">登录</a>

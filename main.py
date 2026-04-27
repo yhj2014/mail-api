@@ -3,6 +3,7 @@
 
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from functools import wraps
 import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
@@ -46,6 +47,15 @@ ADMIN_KEY = os.getenv("ADMIN_KEY", "")
 def load_user(user_id):
     """加载用户"""
     return User.query.get(int(user_id))
+
+def admin_required(f):
+    """管理员权限装饰器"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or not current_user.is_admin:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 def verify_auth(secret):
     """验证用户密钥"""
@@ -327,10 +337,84 @@ def email_stats():
     stats = EmailStat.query.filter_by(user_id=current_user.id).order_by(EmailStat.created_at.desc()).all()
     return render_template('email_stats.html', stats=stats)
 
+# ========== 管理员路由 ==========
+
+@app.route("/admin/dashboard")
+@admin_required
+def admin_dashboard():
+    """管理员控制面板"""
+    # 系统统计
+    total_users = User.query.count()
+    total_api_keys = APIKey.query.count()
+    total_emails = EmailStat.query.count()
+    success_emails = EmailStat.query.filter_by(status="success").count()
+    failed_emails = EmailStat.query.filter_by(status="failed").count()
+    
+    return render_template('admin/dashboard.html', 
+                          total_users=total_users,
+                          total_api_keys=total_api_keys,
+                          total_emails=total_emails,
+                          success_emails=success_emails,
+                          failed_emails=failed_emails)
+
+@app.route("/admin/users")
+@admin_required
+def admin_users():
+    """用户管理"""
+    users = User.query.all()
+    return render_template('admin/users.html', users=users)
+
+@app.route("/admin/users/delete/<int:user_id>")
+@admin_required
+def admin_delete_user(user_id):
+    """删除用户"""
+    user = User.query.get(user_id)
+    if user and not user.is_admin:
+        # 删除用户的API Key
+        APIKey.query.filter_by(user_id=user_id).delete()
+        # 删除用户的邮件统计
+        EmailStat.query.filter_by(user_id=user_id).delete()
+        # 删除用户
+        db.session.delete(user)
+        db.session.commit()
+        flash('用户已删除')
+    else:
+        flash('无法删除用户')
+    return redirect(url_for('admin_users'))
+
+@app.route("/admin/users/toggle_admin/<int:user_id>")
+@admin_required
+def admin_toggle_admin(user_id):
+    """切换用户管理员权限"""
+    user = User.query.get(user_id)
+    if user:
+        user.is_admin = not user.is_admin
+        db.session.commit()
+        flash('用户权限已更新')
+    else:
+        flash('用户不存在')
+    return redirect(url_for('admin_users'))
+
+@app.route("/admin/email_stats")
+@admin_required
+def admin_email_stats():
+    """系统邮件统计"""
+    stats = EmailStat.query.order_by(EmailStat.created_at.desc()).all()
+    return render_template('admin/email_stats.html', stats=stats)
+
 if __name__ == "__main__":
     # 创建数据库表
     with app.app_context():
         db.create_all()
+        
+        # 创建默认管理员账户（如果不存在）
+        admin_user = User.query.filter_by(username="admin").first()
+        if not admin_user:
+            admin_user = User(username="admin", email="admin@example.com", is_admin=True)
+            admin_user.set_password("admin123")
+            db.session.add(admin_user)
+            db.session.commit()
+            print("默认管理员账户已创建: 用户名=admin, 密码=admin123")
     
     port = int(os.getenv("PORT", "5000"))
     debug = os.getenv("DEBUG", "false").lower() == "true"
