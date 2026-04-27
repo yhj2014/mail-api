@@ -20,12 +20,12 @@
 
 ### 1. 数据库设计
 
-需要添加数据库来存储用户信息和API Key。使用SQLite作为轻量级数据库，无需额外配置。
+需要添加数据库来存储用户信息和API Key。使用SQLite3作为轻量级数据库，无需额外配置，直接集成到应用中。
 
 **表结构**：
-- `users` 表：存储用户账户信息
-- `api_keys` 表：存储API Key信息
-- `email_stats` 表：存储邮件发送统计信息
+- `users` 表：存储用户账户信息（id, username, email, password_hash, created_at）
+- `api_keys` 表：存储API Key信息（id, user_id, key, created_at, expires_at, is_active）
+- `email_stats` 表：存储邮件发送统计信息（id, user_id, api_key_id, to_email, subject, status, created_at）
 
 ### 2. 目录结构
 
