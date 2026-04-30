@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>系统邮件统计</h2>
+    <div class="card">
+        <h3>所有邮件发送记录</h3>
+        {% if stats %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>用户</th>
+                        <th>收件人</th>
+                        <th>主题</th>
+                        <th>状态</th>
+                        <th>发送时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in stats %}
+                        <tr>
+                            <td>{{ stat.id }}</td>
+                            <td>{{ stat.user.username }}</td>
+                            <td>{{ stat.to_email }}</td>
+                            <td>{{ stat.subject }}</td>
+                            <td>{{ '成功' if stat.status == 'success' else '失败' }}</td>
+                            <td>{{ stat.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>没有邮件发送记录</p>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>API Key管理</h2>
+    <div class="card">
+        <h3>创建新的API Key</h3>
+        <form method="POST" action="{{ url_for('create_api_key') }}">
+            <input type="submit" value="创建API Key">
+        </form>
+    </div>
+    <div class="card">
+        <h3>我的API Key</h3>
+        {% if keys %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>API Key</th>
+                        <th>创建时间</th>
+                        <th>过期时间</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for key in keys %}
+                        <tr>
+                            <td>{{ key.key }}</td>
+                            <td>{{ key.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>{{ key.expires_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>{{ '活跃' if key.is_active else '已撤销' }}</td>
+                            <td>
+                                {% if key.is_active %}
+                                    <a href="{{ url_for('revoke_api_key', key_id=key.id) }}" class="btn btn-danger" onclick="return confirm('确定要撤销此API Key吗？');">撤销</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>您还没有创建API Key。点击上方按钮创建一个新的API Key。</p>
+        {% endif %}
+    </div>
+{% endblock %}

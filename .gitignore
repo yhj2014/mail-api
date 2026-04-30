@@ -1,0 +1,13 @@
+# Trae documentation directory
+.trae/
+
+# Python bytecode cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Instance directory (contains database)
+instance/
+
+# Environment variables
+.env

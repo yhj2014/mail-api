@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>管理员控制面板</h2>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_users }}</div>
+            <div class="stat-label">总用户数</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_api_keys }}</div>
+            <div class="stat-label">API Key数量</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_emails }}</div>
+            <div class="stat-label">总邮件数</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ success_emails }}</div>
+            <div class="stat-label">成功发送</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ failed_emails }}</div>
+            <div class="stat-label">发送失败</div>
+        </div>
+    </div>
+    <div class="card">
+        <h3>管理员功能</h3>
+        <ul style="margin-top: 10px; margin-left: 20px;">
+            <li><a href="{{ url_for('admin_users') }}">用户管理</a> - 查看和管理所有用户</li>
+            <li><a href="{{ url_for('admin_email_stats') }}">系统邮件统计</a> - 查看所有邮件发送记录</li>
+        </ul>
+    </div>
+{% endblock %}

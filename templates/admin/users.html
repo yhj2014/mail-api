@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>用户管理</h2>
+    <div class="card">
+        <h3>所有用户</h3>
+        {% if users %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>用户名</th>
+                        <th>邮箱</th>
+                        <th>是否管理员</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ '是' if user.is_admin else '否' }}</td>
+                            <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>
+                                {% if not user.is_admin %}
+                                    <a href="{{ url_for('admin_delete_user', user_id=user.id) }}" class="btn btn-danger" onclick="return confirm('确定要删除此用户吗？');">删除</a>
+                                {% endif %}
+                                <a href="{{ url_for('admin_toggle_admin', user_id=user.id) }}" class="btn btn-primary">
+                                    {{ '取消管理员' if user.is_admin else '设为管理员' }}
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>没有用户</p>
+        {% endif %}
+    </div>
+{% endblock %}
