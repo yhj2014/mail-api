@@ -270,6 +270,15 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
+# ========== 根路由 ==========
+
+@app.route("/")
+def index():
+    """根路由：根据用户登录状态跳转到控制面板或登录页面"""
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    return redirect(url_for('login'))
+
 # ========== 控制面板路由 ==========
 
 @app.route("/dashboard")
