@@ -411,20 +411,19 @@ def admin_email_stats():
     stats = EmailStat.query.order_by(EmailStat.created_at.desc()).all()
     return render_template('admin/email_stats.html', stats=stats)
 
+# 初始化数据库表（在应用上下文内立即建表，避免首次请求时出现 "no such table"）
+with app.app_context():
+    db.create_all()
+
+    # 创建默认管理员账户（如果不存在）
+    _admin_user = User.query.filter_by(username="admin").first()
+    if not _admin_user:
+        _admin_user = User(username="admin", email="admin@example.com", is_admin=True)
+        _admin_user.set_password("admin123")
+        db.session.add(_admin_user)
+        db.session.commit()
+
 if __name__ == "__main__":
-    # 创建数据库表
-    with app.app_context():
-        db.create_all()
-        
-        # 创建默认管理员账户（如果不存在）
-        admin_user = User.query.filter_by(username="admin").first()
-        if not admin_user:
-            admin_user = User(username="admin", email="admin@example.com", is_admin=True)
-            admin_user.set_password("admin123")
-            db.session.add(admin_user)
-            db.session.commit()
-            print("默认管理员账户已创建: 用户名=admin, 密码=admin123")
-    
     port = int(os.getenv("PORT", "5000"))
     debug = os.getenv("DEBUG", "false").lower() == "true"
     app.run(host="0.0.0.0", port=port, debug=debug)
